@@ -1,4 +1,4 @@
-package com.ab.cmdBackend;
+package com.ab.cmsBackend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

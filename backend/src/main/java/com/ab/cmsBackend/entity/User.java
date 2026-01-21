@@ -1,4 +1,4 @@
-package com.ab.cmdBackend.entity;
+package com.ab.cmsBackend.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
