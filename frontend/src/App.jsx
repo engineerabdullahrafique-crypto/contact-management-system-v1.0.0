@@ -12,6 +12,7 @@ const ContactList = React.lazy(() => import('./components/contacts/ContactList')
 const ChangePassword = React.lazy(() => import('./components/auth/ChangePassword'));
 const ContactForm = React.lazy(() => import('./components/contacts/ContactForm'));
 const ContactDetail = React.lazy(() => import('./components/contacts/ContactDetail'));
+const UserProfile = React.lazy(() => import('./components/profile/UserProfile'));
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -107,6 +108,7 @@ function AppContent() {
             <Route path="contacts/:id" element={<ContactDetail />} />
             <Route path="contacts/:id/edit" element={<ContactForm />} />            
             <Route path="change-password" element={<ChangePassword />} />
+            <Route path="profile" element={<UserProfile />} />
           </Route>
           
           <Route path="*" element={<Navigate to="/dashboard" />} />
