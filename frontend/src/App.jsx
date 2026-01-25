@@ -8,7 +8,10 @@ import './styles/App.css';
 const Login = React.lazy(() => import('./components/auth/Login'));
 const Register = React.lazy(() => import('./components/auth/Register'));
 const Layout = React.lazy(() => import('./components/layout/Layout'));
+const ContactList = React.lazy(() => import('./components/contacts/ContactList'));
 const ChangePassword = React.lazy(() => import('./components/auth/ChangePassword'));
+const ContactForm = React.lazy(() => import('./components/contacts/ContactForm'));
+const ContactDetail = React.lazy(() => import('./components/contacts/ContactDetail'));
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -42,6 +45,7 @@ const PublicRoute = ({ children }) => {
   return !isAuthenticated ? children : <Navigate to="/dashboard" />;
 };
 
+
 const LoadingSpinner = () => (
   <div className="loading-screen">
     <div className="spinner-border text-primary" role="status">
@@ -49,7 +53,6 @@ const LoadingSpinner = () => (
     </div>
   </div>
 );
-
 
 function AppContent() {
   return (
@@ -97,8 +100,12 @@ function AppContent() {
             <PrivateRoute>
               <Layout />
             </PrivateRoute>
-          }>                   
-            
+          }>
+            <Route index element={<ContactList />} />
+            <Route path="contacts" element={<ContactList />} />            
+            <Route path="contacts/new" element={<ContactForm />} />
+            <Route path="contacts/:id" element={<ContactDetail />} />
+            <Route path="contacts/:id/edit" element={<ContactForm />} />            
             <Route path="change-password" element={<ChangePassword />} />
           </Route>
           
