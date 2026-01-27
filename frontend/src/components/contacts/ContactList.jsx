@@ -14,20 +14,28 @@ const ContactList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredContacts, setFilteredContacts] = useState([]);
 
-  const fetchContacts = async () => {
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const pageSize = 10;
+
+  const fetchContacts = async (page) => {
     try {
       setLoading(true);
       setError('');
       
-      const result = await contactService.getAllContacts();
+      const result = await contactService.getAllContacts(page, pageSize);
       
       if (result.success) {
         // Handling spring boot page object
-        const data = result.data.content || result.data;
-        const contactArray = Array.isArray(data) ? data : [];
+        const data = result.data.content || [];
         
-        setContacts(contactArray);
-        setFilteredContacts(contactArray);
+        setContacts(data);
+        setFilteredContacts(data);
+       
+        setTotalPages(result.data.totalPages || 0);
+        setTotalElements(result.data.totalElements || 0);
       } else {
         setError(result.error);
       }
@@ -39,8 +47,8 @@ const ContactList = () => {
   };
 
   useEffect(() => {
-    fetchContacts();
-  }, []);
+    fetchContacts(currentPage);
+  }, [currentPage]);
 
   useEffect(() => {
     if (searchTerm.trim() === '') {
@@ -54,6 +62,13 @@ const ContactList = () => {
       setFilteredContacts(filtered);
     }
   }, [searchTerm, contacts]);
+  
+  const handlePageChange = (newPage) => {
+    if (newPage >= 0 && newPage < totalPages) {
+      setCurrentPage(newPage);
+      window.scrollTo(0, 0);
+    }
+  };
 
   if (loading) return <LoadingSpinner fullPage text="Loading contacts..." />;
 
@@ -62,8 +77,8 @@ const ContactList = () => {
       <div className="contact-list-header">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
-            <h2>Contacts</h2>
-            <p className="text-muted">Total contacts: {contacts.length}</p>
+            <h2>Contacts</h2>            
+            <p className="text-muted">Total contacts: {totalElements}</p>
           </div>
           <Link to="/dashboard/contacts/new" className="btn btn-primary">
             Add New Contact
@@ -80,23 +95,64 @@ const ContactList = () => {
           icon="📇"
         />
       ) : (
-        <div className="row">
-          {filteredContacts.map(contact => (            
-            <div key={contact.id} className="col-md-6 col-lg-4 mb-4">
-              <div className="card h-100 shadow-sm">
-                <div className="card-body">
-                  <h5 className="card-title">{contact.firstName} {contact.lastName}</h5>
-                  <p className="card-text text-muted">{contact.email}</p>
-                  <p className="card-text">{contact.phoneNumber}</p>
-                  <div className="mt-3">
-                    <Link to={`/dashboard/contacts/${contact.id}`} className="btn btn-sm btn-outline-primary me-2">View</Link>
-                    <Link to={`/dashboard/contacts/${contact.id}/edit`} className="btn btn-sm btn-outline-secondary">Edit</Link>
+        <>
+          <div className="row">
+            {filteredContacts.map(contact => (            
+              <div key={contact.id} className="col-md-6 col-lg-4 mb-4">
+                <div className="card h-100 shadow-sm">
+                  <div className="card-body">
+                    <h5 className="card-title">{contact.firstName} {contact.lastName}</h5>
+                    <p className="card-text text-muted">{contact.email}</p>
+                    <p className="card-text">{contact.phoneNumber}</p>
+                    <div className="mt-3">
+                      <Link to={`/dashboard/contacts/${contact.id}`} className="btn btn-sm btn-outline-primary me-2">View</Link>
+                      <Link to={`/dashboard/contacts/${contact.id}/edit`} className="btn btn-sm btn-outline-secondary">Edit</Link>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          {/*Pagination controls */}
+          {totalPages > 1 && (
+            <nav aria-label="Page navigation" className="mt-4">
+              <ul className="pagination justify-content-center">
+                <li className={`page-item ${currentPage === 0 ? 'disabled' : ''}`}>
+                  <button 
+                    className="page-link" 
+                    onClick={() => handlePageChange(currentPage - 1)}
+                  >
+                    Previous
+                  </button>
+                </li>
+                
+                {[...Array(totalPages).keys()].map(pageIndex => (
+                  <li 
+                    key={pageIndex} 
+                    className={`page-item ${currentPage === pageIndex ? 'active' : ''}`}
+                  >
+                    <button 
+                      className="page-link" 
+                      onClick={() => handlePageChange(pageIndex)}
+                    >
+                      {pageIndex + 1}
+                    </button>
+                  </li>
+                ))}
+
+                <li className={`page-item ${currentPage === totalPages - 1 ? 'disabled' : ''}`}>
+                  <button 
+                    className="page-link" 
+                    onClick={() => handlePageChange(currentPage + 1)}
+                  >
+                    Next
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          )}
+        </>
       )}
     </div>
   );
