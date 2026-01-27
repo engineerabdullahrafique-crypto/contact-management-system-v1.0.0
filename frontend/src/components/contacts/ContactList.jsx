@@ -20,22 +20,31 @@ const ContactList = () => {
   const [totalElements, setTotalElements] = useState(0);
   const pageSize = 10;
 
-  const fetchContacts = async (page) => {
+  const fetchContacts = async (page, query = '') => {
     try {
       setLoading(true);
       setError('');
-      
-      const result = await contactService.getAllContacts(page, pageSize);
-      
+
+      let result;
+      if (query.trim()) {
+        result = await contactService.searchContacts(query);
+      } else {
+        result = await contactService.getAllContacts(page, pageSize);
+      }
+
       if (result.success) {
-        // Handling spring boot page object
-        const data = result.data.content || [];
-        
+        const data = query.trim() ? result.data : (result.data.content || []);
+
         setContacts(data);
         setFilteredContacts(data);
-       
-        setTotalPages(result.data.totalPages || 0);
-        setTotalElements(result.data.totalElements || 0);
+
+        if (!query.trim()) {
+          setTotalPages(result.data.totalPages || 0);
+          setTotalElements(result.data.totalElements || 0);
+        } else {
+          setTotalElements(data.length);
+          setTotalPages(0);
+        }
       } else {
         setError(result.error);
       }
@@ -46,15 +55,16 @@ const ContactList = () => {
     }
   };
 
+
   useEffect(() => {
-    fetchContacts(currentPage);
-  }, [currentPage]);
+    fetchContacts(currentPage, searchTerm);
+  }, [currentPage, searchTerm]);
 
   useEffect(() => {
     if (searchTerm.trim() === '') {
       setFilteredContacts(contacts);
     } else {
-      const filtered = contacts.filter(contact =>        
+      const filtered = contacts.filter(contact =>
         contact.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         contact.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         contact.email?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -62,7 +72,7 @@ const ContactList = () => {
       setFilteredContacts(filtered);
     }
   }, [searchTerm, contacts]);
-  
+
   const handlePageChange = (newPage) => {
     if (newPage >= 0 && newPage < totalPages) {
       setCurrentPage(newPage);
@@ -77,7 +87,7 @@ const ContactList = () => {
       <div className="contact-list-header">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
-            <h2>Contacts</h2>            
+            <h2>Contacts</h2>
             <p className="text-muted">Total contacts: {totalElements}</p>
           </div>
           <Link to="/dashboard/contacts/new" className="btn btn-primary">
@@ -90,20 +100,27 @@ const ContactList = () => {
       {error && <ErrorAlert message={error} />}
 
       {!error && filteredContacts.length === 0 ? (
-        <EmptyState 
+        <EmptyState
           message={searchTerm ? `No results for "${searchTerm}"` : "No contacts found."}
           icon="📇"
         />
       ) : (
         <>
           <div className="row">
-            {filteredContacts.map(contact => (            
+            {filteredContacts.map(contact => (
               <div key={contact.id} className="col-md-6 col-lg-4 mb-4">
                 <div className="card h-100 shadow-sm">
                   <div className="card-body">
                     <h5 className="card-title">{contact.firstName} {contact.lastName}</h5>
-                    <p className="card-text text-muted">{contact.email}</p>
-                    <p className="card-text">{contact.phoneNumber}</p>
+
+                    <p className="card-text mb-1">
+                      <small className="text-muted">📧 {contact.emailWork || contact.emailPersonal || 'No email'}</small>
+                    </p>
+
+                    <p className="card-text">
+                      <small className="text-muted">📞 {contact.phonePersonal || contact.phoneWork || 'No phone'}</small>
+                    </p>
+
                     <div className="mt-3">
                       <Link to={`/dashboard/contacts/${contact.id}`} className="btn btn-sm btn-outline-primary me-2">View</Link>
                       <Link to={`/dashboard/contacts/${contact.id}/edit`} className="btn btn-sm btn-outline-secondary">Edit</Link>
@@ -119,21 +136,21 @@ const ContactList = () => {
             <nav aria-label="Page navigation" className="mt-4">
               <ul className="pagination justify-content-center">
                 <li className={`page-item ${currentPage === 0 ? 'disabled' : ''}`}>
-                  <button 
-                    className="page-link" 
+                  <button
+                    className="page-link"
                     onClick={() => handlePageChange(currentPage - 1)}
                   >
                     Previous
                   </button>
                 </li>
-                
+
                 {[...Array(totalPages).keys()].map(pageIndex => (
-                  <li 
-                    key={pageIndex} 
+                  <li
+                    key={pageIndex}
                     className={`page-item ${currentPage === pageIndex ? 'active' : ''}`}
                   >
-                    <button 
-                      className="page-link" 
+                    <button
+                      className="page-link"
                       onClick={() => handlePageChange(pageIndex)}
                     >
                       {pageIndex + 1}
@@ -142,8 +159,8 @@ const ContactList = () => {
                 ))}
 
                 <li className={`page-item ${currentPage === totalPages - 1 ? 'disabled' : ''}`}>
-                  <button 
-                    className="page-link" 
+                  <button
+                    className="page-link"
                     onClick={() => handlePageChange(currentPage + 1)}
                   >
                     Next
