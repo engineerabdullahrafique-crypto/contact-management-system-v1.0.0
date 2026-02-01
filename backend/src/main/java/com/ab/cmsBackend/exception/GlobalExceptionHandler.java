@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // NEW: This handles @Valid failures (missing fields, @NotBlank, etc.)
+    // Handles @Valid failures (missing fields, @NotBlank, etc.)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
                 .body(errors);
     }
 
-    // Keep your existing handlers
+    // Keeping existing handlers
     @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
     public ResponseEntity<String> handleBusinessException(RuntimeException e) {
         logger.error("Business exception occurred: ", e);
