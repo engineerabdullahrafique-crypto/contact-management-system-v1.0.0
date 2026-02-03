@@ -1,4 +1,3 @@
-// src/test/java/com/ab/cmsBackend/service/AuthServiceTest.java
 package com.ab.cmsBackend.service;
 
 import com.ab.cmsBackend.dto.LoginDto;
@@ -62,7 +61,7 @@ class AuthServiceTest {
         testUser.setPassword("encodedPassword123");
     }
 
-    // ==================== REGISTRATION TESTS ====================
+    // Registration Test
 
     // Test 1: Successful registration
     @Test
@@ -118,7 +117,7 @@ class AuthServiceTest {
         ));
     }
 
-    // ==================== LOGIN TESTS ====================
+    // Login Test
 
     // Test 4: Successful login
     @Test
@@ -283,7 +282,7 @@ class AuthServiceTest {
         assertEquals("Invalid credentials", exception.getMessage());
     }
 
-    // ==================== EDGE CASES ====================
+    // Edge Cases
 
     // Test 11: Register with null data
     @Test
