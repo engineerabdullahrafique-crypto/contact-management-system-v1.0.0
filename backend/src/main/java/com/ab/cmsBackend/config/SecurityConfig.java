@@ -49,7 +49,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/user/forgot-password").permitAll()
+                        .requestMatchers("/api/user/reset-password").permitAll()
+                        .requestMatchers("/api/user/validate-reset-token/**").permitAll()
+                        // Protected endpoints
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
