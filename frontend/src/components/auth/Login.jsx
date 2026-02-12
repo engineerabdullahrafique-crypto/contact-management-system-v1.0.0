@@ -100,6 +100,13 @@ const Login = () => {
                     </Form.Control.Feedback>
                   </FloatingLabel>
 
+                   {/* NEW: FORGOT PASSWORD LINK */}
+                  <div className="text-end mb-4">
+                    <Link to="/forgot-password" size="sm" className="text-decoration-none text-primary fw-semibold" style={{ fontSize: '0.85rem' }}>
+                      Forgot Password?
+                    </Link>
+                  </div>
+
                   <Button 
                     type="submit" 
                     variant="primary" 
