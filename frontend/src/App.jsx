@@ -13,6 +13,8 @@ const ChangePassword = React.lazy(() => import('./components/auth/ChangePassword
 const ContactForm = React.lazy(() => import('./components/contacts/ContactForm'));
 const ContactDetail = React.lazy(() => import('./components/contacts/ContactDetail'));
 const UserProfile = React.lazy(() => import('./components/profile/UserProfile'));
+const ForgotPassword = React.lazy(() => import('./components/auth/ForgotPassword'));
+const ResetPassword = React.lazy(() => import('./components/auth/ResetPassword'));
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -84,7 +86,7 @@ function AppContent() {
       />
 
       <Suspense fallback={<LoadingSpinner />}>
-        <Routes>          
+        <Routes>
           <Route path="/login" element={
             <PublicRoute>
               <Login />
@@ -95,7 +97,17 @@ function AppContent() {
               <Register />
             </PublicRoute>
           } />
-          
+          <Route path="/forgot-password" element={
+            <PublicRoute>
+              <ForgotPassword />
+            </PublicRoute>
+          } />
+          <Route path="/reset-password" element={
+            <PublicRoute>
+              <ResetPassword />
+            </PublicRoute>
+          } />
+
           <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route path="/dashboard" element={
             <PrivateRoute>
@@ -103,14 +115,14 @@ function AppContent() {
             </PrivateRoute>
           }>
             <Route index element={<ContactList />} />
-            <Route path="contacts" element={<ContactList />} />            
+            <Route path="contacts" element={<ContactList />} />
             <Route path="contacts/new" element={<ContactForm />} />
             <Route path="contacts/:id" element={<ContactDetail />} />
-            <Route path="contacts/:id/edit" element={<ContactForm />} />            
+            <Route path="contacts/:id/edit" element={<ContactForm />} />
             <Route path="change-password" element={<ChangePassword />} />
             <Route path="profile" element={<UserProfile />} />
           </Route>
-          
+
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
       </Suspense>
